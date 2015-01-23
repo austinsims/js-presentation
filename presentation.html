@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript: The Good Parts</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+    @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+    @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+    body { font-family: 'Droid Serif'; }
+    h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+    }
+    .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+</head>
+<body>
+    <textarea id="source">
+
+        class: center, middle
+
+        # Intermediate JavaScript
+        ### Austin Sims
+
+        ---
+
+        #Introduction
+
+        * A look at some unique features of Javascript
+        * The good parts
+        * The awful parts
+
+        ---
+
+        class: center, middle
+        # The Good Parts
+
+        ---
+
+        # Data Types
+
+        There's really only four of them
+        ####Boolean
+        ####String
+        ####Number
+        Holds integers, floats, or `Infinity`
+
+        ####Object
+        Maps a set of strings to arbitrary values
+
+        ```
+        var xby2 = {
+            name: 'X by 2',
+            location: 'Michigan',
+            employees: 40
+        };
+        ```
+
+        ---
+
+        # Data Types
+
+        You've got a few special types of objects
+
+        * Function
+          * Has behavior--called with parens, like in C or Java
+          * Can be passed around like any other value
+        * Array
+          * More of an ArrayList--dynamically sized
+          * Accessed with square brackets
+
+        #### The Catch
+        Functions and arrays are still objects.  You can assign properties to them like any other object.
+
+        ---
+
+        # Strings are weird
+
+        They aren't objects, so you can't give them properties.  You can try without an error, but it won't work:
+        ```
+        > var s = "Hello, world";
+        > s.prop = 1234;
+        > s.prop;
+        undefined
+        ```
+        But--strings do have methods and can be indexed like arrays with `[]`
+        ```
+        > s.substring(7);
+        "world"
+
+        > s[0];
+        "H"
+        ```
+
+        ---
+
+        # Very weird
+
+        Although string instances aren't objects, string is much like a built-in class.  You can even extend it with more methods, like `reverse`:
+
+        ```javascript
+        String.prototype.reverse = function() {
+            var rev = '';
+            for (var i = this.length - 1; i >= 0; i--) {
+                rev += this[i];
+            }
+            return rev;
+        }
+        ```
+        ```
+        > "asdf".reverse();
+        "fdsa"
+        ```
+
+        Don't worry about what that `prototype` thing is for now.  We'll get to it :)
+
+        ---
+
+        # Arrays are less weird... but still
+
+        It's better to think of arrays as objects keyed by integers instead of strings, because they behave that way.  You can add values past the end of your array...
+        ```
+        > var alphabet = ['a', 'b'];
+        > alphabet.length;
+        2
+        > alphabet[3] = 'd';
+        > alphabet;
+        ["a", "b", undefined, "d"]
+        > alphabet.length;
+        4
+        ```
+        ... and you can delete things in the middle...
+        ```
+        > delete alphabet[1];
+        > alphabet;
+        ["a", undefined, undefined, "d"]
+        > alphabet.length;
+        4
+
+        ```
+        and all the while, the `length` property stays the same.  You can't always trust `length` to actually be the count of how many things are really defined in your array!
+
+        ---
+
+        # Not-Quite Data Types
+
+        There are two distinct values in JavaScript that mean "nothing".
+
+        ### undefined
+        This is what you get when you try to use a variable that hasn't been declared yet, or access an object property that hasn't been assigned.
+        ```
+        > undeclaredName;
+        undefined
+        > var o = {};
+        > o.property;
+        undefined
+        ```
+        You can see that JavaScript is permissive when it comes to undeclared stuff; it won't throw an error, just returns `undefined`.  Don't try to access a property of an object that doesn't exist, though, or you will get an error:
+        ```
+        > undeclaredName.property;
+        Uncaught ReferenceError: undeclaredName is not defined
+        ```
+
+        ---
+
+        # Not-Quite Data Types
+
+        ### null
+
+        This is sort of like undefined, except you can use it to explicitly tell the difference between something that has been deliberately set to 'no value' and something that just hasn't been assigned at all.
+
+        ### NaN
+
+        You won't see it too often, but some library functions that usually return numbers will return `NaN` in corner cases.
+        ```
+        > parseInt("");
+        NaN
+        ```
+
+        ---
+
+        # Truthy and Falsy
+
+        JavaScript will coerce any expression into either `true` or `false` whenever a boolean is expected, like in an `if` statement.  That makes our clunky C# code...
+
+        ```csharp
+        private void ThingsMightBeNull(F arg) {
+            if (arg.prop1 != null) {
+                DoSomethingWith(arg.prop);
+            }
+        }
+        ```
+        look a bit nicer in JavaScript:
+        ```javascript
+        function thingsMightBeNull(arg) {
+            if (arg.prop) {
+                doSomethingWith(arg.prop);
+            }
+        }
+        ```
+
+        ---
+
+        # ... but be careful
+
+        Some things you might expect to be falsy actually turn out to be truthy.  In fact, these are the *only* falsy values:
+        * `false`
+        * `0`
+        * `""` (empty string)
+        * `null`
+        * `undefined`
+        * `NaN`
+
+        So that means that some things you might expect to be falsy are actually truthy:
+        ```
+        > Boolean([]) // empty array
+        true
+
+        > Boolean(-1)
+        true
+        ```
+
+        ---
+
+        # Operators
+
+        JS operators are mostly like the ones from C or Java, with a few important quirks
+
+        * `=` (Assignment)
+        * `==` (Equality, type-coercing)
+        * `===` (Equality, strict)
+
+        ---
+
+        # Be careful with `==`
+        ![Alt text](javascript_equals_equals_equality_table.jpg "Optional title")
+
+        ---
+
+        # Logical OR
+        The `||` operator is short-circuit logical OR like in most languages, but because of JavaScript's liberal interpretation of "truthy" and "falsy", also gives JS programmers a fantastically expressive and unmatched way to set default values.  Consider the following:
+        ```javascript
+        function greet(location, name) {
+            console.log('Welcome to '
+                        + location
+                        + ', '
+                        + (name || 'honored guest.')
+                        );
+        }
+        ```
+        ```
+        > greet('Lothlórien', 'Frodo');
+        Welcome to Lothlórien, Frodo
+
+        > greet('Rivendell')
+        Welcome to Rivendell, our honored guest.
+        ```
+
+        ---
+
+        ### Function return value
+        When a function has no `return` statement, it returns `undefined`.
+        ```
+        function f() {
+            var x = 2;
+            var y = 3;
+            // no return statement
+        }
+        ```
+        ```
+        > f();
+        undefined
+        ```
+
+        ---
+
+        ## Objects aren't weird, they're special!
+
+        Since functions and arrays are also objects, they can be used in interesting ways that you wouldn't think of in other languages.  Let's teach an array to sum itself:
+
+        ```javascript
+        var a = [1,2,3];
+        a.sum = function() {
+            var sum = 0;
+            this.forEach(function(n) {
+                sum += n;
+            });
+            return sum;
+        };
+        ```
+        Then, you can do this at a console:
+        ```
+        > a[0];
+        1
+
+        > a.sum();
+        6
+
+        > a.push(6); a.sum();
+        12
+        ```
+
+        ---
+
+        You can assign arbitrary properties to functions as well... even other functions...
+
+        ```javascript
+        function f() {
+            arguments.callee.g();
+        }
+        f.g = function() { console.log('Things are getting weird'); }
+        ```
+        Now try calling `f`:
+        ```
+        > f();
+        Things are getting weird
+        ```
+
+        ---
+
+        # Something Useful
+
+        Let's use some objects to keep track of how well written our projects are...
+
+        ```javascript
+        var genii = {
+            name: 'GENII',
+            bugs: 1000,
+            linesOfCode: 200000,
+            ratio: function() {
+                console.log(this.name + ' has one bug per '
+                    + this.linesOfCode / this.bugs + ' lines of code.');
+            }
+        }
+
+        var cpdm = {
+            name: 'CPDM',
+            bugs: 5,
+            linesOfCode: 999999999,
+            ratio: function() {
+                console.log(this.name + ' has one bug per '
+                    + this.linesOfCode / this.bugs + ' lines of code.');
+            }
+        }
+        ```
+
+        ```
+        > genii.ratio();
+        GENII has one bug per 200 lines of code.
+
+        > cpdm.ratio();
+        CPDM has one bug per 199999999.8 lines of code.
+        ```
+
+        ---
+
+        class: center, middle
+        Most of that code is the same between GENII and CPDM... this leads us to OOP in JavaScript
+
+        ---
+
+        # Classes
+
+        There is no class keyword (coming soon in ES6).  Instead, you just write a constructor.  You can attach methods by assigning functions during the constructor.
+
+        ```javascript
+        function Project(name, bugs, linesOfCode) {
+            this.name = name;
+            this.bugs = bugs;
+            this.linesOfCode = linesOfCode;
+            this.ratio = function() {
+                console.log(this.name + ' has one bug per '
+                    + this.linesOfCode / this.bugs + ' lines of code.');
+            };
+        }
+
+        ```
+
+        Then use the `new` keyword to instantiate your class:
+
+        ```
+        > var abc = new Project('ABC Warehouse', 50, 30000);
+        > abc.ratio();
+        ABC Warehouse has one bug per 600 lines of code.
+        ```
+
+        ---
+
+        ### Be Careful...
+
+        Don't forget to use `new` when calling your constructors, or Bad Things will happen:
+
+        ```
+        > var healthcare = Project('Healthcare.gov', 100000, 100000);
+        > healthcare.ratio();
+        Uncaught TypeError: Cannot read property 'ratio' of undefined
+        ```
+        Where did the properties and method go??
+        ```
+        > window.bugs
+        100000
+        ```
+        That's weird... Let's talk about `this` to explain what happened
+
+        ---
+
+        class: center, middle
+        # `this`
+        A reserved name always bound to the "current object"
+
+        What that is... depends on how the function is called
+
+        ---
+
+        # How's `this` Bound?
+        ### Simple function call
+        By default, `this` refers to the global object (`window` in a browser)
+        ```javascript
+        > function f() { return this; };
+        > f() === window;
+        true
+        ```
+        Try simply calling a function from another function body... still the global object
+        ```javascript
+        > function g() { return this === window; }
+        > function f() { return g(); }
+        > f();
+        true
+        ```
+
+        ---
+
+        # How's `this` Bound?
+        ### Function called as an object method
+
+        If a function belongs to an object, `this` is set to the object it belongs to.  That's how our sum method from before worked; `this` was set to the array itself.
+        ```javascript
+        var a = [1,2,3];
+        a.sum = function() {
+            var sum = 0;
+            this.forEach(function(n) { sum += n; });
+            return sum;
+        };
+        console.log(a.sum()); // prints 6
+        ```
+        This code would do the same thing:
+        ```javascript
+        var a = [1,2,3];
+        function sum(anArray) {
+            var sum = 0;
+            anArray.forEach(function(n) { sum += n; });
+            return sum;
+        }
+        console.log(sum(anArray)); // prints 6
+        ```
+
+        ---
+
+        # How's `this` Bound?
+        ### Function called as a constructor with `new`
+
+        The `new` keyword creates a special context for the function being called:
+        * An empty object is created and bound to `this`
+        * The function returns that object
+
+        ---
+
+        # How's `this` Bound?
+        ### Our Big Whoopsie Revisited; A Pop Quiz
+
+        Now that we understand what `this` is bound to in different circumstances, can you explain the two mysteries from before?
+
+        ```
+        > var healthcare = Project('Healthcare.gov', 100000, 100000);
+        > heathcare
+        undefined
+
+        > window.bugs
+        100000
+        ```
+        * Why is `healthcare` undefined?
+        * Why did 100000 get assigned to `window.bugs`?
+
+        ---
+
+        # How's `this` Bound?
+        ### `call` and `apply` methods
+
+        It's also possible to manually control what `this` is bound to when you like, with these two methods of Function.  `call` and `apply` allow you to call a function with a specific object in mind for `this`:
+        ```javascript
+        function add(c, d) {
+            return this.a + this.b + c + d;
+        }
+        var o = {a: 1, b:3};
+        ```
+        ```
+        > add.call(o, 5, 7) // 1 + 3 + 5 + 7...
+        16
+        ```
+        `apply` is the same, except it takes the arguments to the actual function as an array instead of varargs:
+        ```
+        > add.apply(o, [5,7])
+        16
+        ```
+
+        ---
+        # How's `this` Bound?
+        ### ...when would you ever use that?
+        One fun use of `call` is for class inheritance!  You can call another constructor from within a sublcass constructor and pass your own `this` in order to have the superclass constructor initialize your object first:
+        ```javascript
+        function Superclass(n) {
+            this.single = n;
+        }
+        function Subclass(n) {
+            Superclass.call(this, n);
+            this.double = 2 * n;
+        }
+        ```
+        ```
+        > var inst = new Subclass(2);
+        > inst.single;
+        2
+
+        > inst.double;
+        4
+        ```
+
+        ---
+
+        # How's `this` Bound?
+        ### The `bind` method
+
+        `bind` creates a totally new function from an existing one, except with `this` and the arguments permanently set to whatever you want.
+
+        ```javascript
+        function f(addend1, addend2) {
+            console.log((addend1 + addend2) / this.divisor);
+        }
+        var obj = {divisor: 2};
+        function g = f.bind(obj, 2,4);
+        ```
+        ```
+        > g();
+        3
+        ```
+
+        ---
+
+        Here's a practical example of `bind` in GENII:
+
+        ```javascript
+        // These calls to sendGetRequest are needed by both branches below
+        var sendHomeGetRequest = sendGetRequest.bind(this,
+            window.FrameManager['MainSection'](tab.id).window, 'StartCustomerProfileGroup',
+            'MainSection', 'MainSection', undefined, undefined, true );
+        var sendAccelPostingGetRequest = sendGetRequest.bind(this,
+            window.FrameManager['MainSection'](tab.id).window, 'CloseCusHomeAndGoToCUPosting',
+            'MainSection', 'MainSection', undefined, undefined, true);
+
+        // This branch is executed if any legacy screen is in the customer's tab
+        if (tab.displayLegacy) {
+            // This will activate a GENII process and not return a value, so don't try
+            // to assign it to anything.
+            sendHomeGetRequest();
+
+            // Specifying no controller location will cause this to navigate to
+            // home--which is what we need
+            tab.url = config.legacyUrlRoot;
+            var navSubscription = observable(tab, 'mainFrameLoading').subscribe(function() {
+                var controllerLocation = sendAccelPostingGetRequest();
+                tab.url = config.legacyUrlRoot + controllerLocation;
+            });
+        }
+
+        // This branch is executed if GENII Customer Home is in the customer's tab
+        // In this case, FMS home is in the background, navigation is not necessary
+        else {
+            // This will return a controller location we need to append to the legacy
+            // URL root and manually direct the iFrame to the result
+            var controllerLocation = sendAccelPostingGetRequest();
+            tab.url = config.legacyUrlRoot + controllerLocation;
+        }
+        ```
+
+        ---
+
+        class: center, middle
+        # The Wicked Sick Parts
+        JavaScript is my favorite language.  It lets you do awesome things that are hard or impossible in other common languages.
+
+        ---
+
+        # Functional Programming
+
+        ## What?
+
+        At the surface, FP is writing code *imperatively* instead of *declaratively*.  SQL is an imperative language we're all familiar with--you tell SQL Server *what* you want instead of *how* to get it.
+
+        ---
+
+        Consider this SQL:
+        ```sql
+        select p.title, p.date, a.email
+        from posts p join authors a on p.authorId = a.authorId
+        where p.category = 'Programming'
+        order by p.date desc
+        ```
+
+        If you expressed that imperatively, you might get this:
+
+        ```javascript
+        var results = [];
+        for (var i=0; i<posts.length; i++) {
+            if (posts[i].category == 'Programming') {
+                result.title = posts[i].title;
+                result.date = posts[i].date;
+                var author = null;
+                for (var j=0; j<authors.length; j++) {
+                    if (authors[j].authorId == post.authorId) {
+                        result.email = authors[j].email;
+                    }
+                }
+                results.push(result);
+            }
+        }
+        sort(results);
+        ```
+        Truly dreadful to read and write, and prone to bugs.
+
+        ---
+
+        Here's the SQL again:
+        ```sql
+        select p.title, p.date, a.email
+        from posts p join authors a on p.authorId = a.authorId
+        where p.category = 'Programming'
+        order by p.date desc
+        ```
+
+        And here's how you can express that imperatively in a functional programming style with JavaScript:
+        ```javascript
+        var results = posts
+            .filter(function(p) {
+                return p.category == 'Programming';
+            })
+            .map(function(p) {
+                return {
+                    title: p.title,
+                    date: p.date,
+                    email: authors.filter(function(a) {
+                        return a.authorId == p.authorId;
+                    })[0].email
+                };
+            })
+            .sort(function(a,b) { return b.date - a.date; });
+
+        ```
+
+        ---
+
+        # Bonus Points
+        Functional programming with `map`, `filter` and friends isn't just great to rewrite your nested loops like SQL.
+
+        You can also pass built-in functions to these methods to greatly simplify your code.  Consider this bit to grab numbers from HTML form inputs and get the sum.  (It uses a little help from a popular JavaScript library, Underscore.js)
+
+        ```javascript
+        var inputs = $('input[type=text]');
+        _(inputs)
+            .invoke('val')
+            .map(parseInt)
+            .reduce(function(memo, next) { return memo + next; } , 0)
+            .value()
+        ```
+
+        By passing the built-in function `parseInt` to `map`, we convert the array of strings into an array of ints.
+
+
+        ---
+
+        # IIFEs
+
+        IIFE means Immediately Invoked Function Expression.  Since a function declaration can be a normal expression in JavaScript that returns a value, you can invoke it right away by putting parens at the end.  Here's an IIFE I once used in GENII to assign a color to a given id from a cyclical palette such that, once assigned, an ID would always return the same color:
+
+        ```javascript
+        var getColor = (function() {
+            var colors = ['#fefefe', '#0fabcc', '#aaabba', '0123abc', '#0123ff'];
+            var memo = {};
+            var i = 0;
+            return function(id) {
+                if (memo[id]) return memo[id];
+                else return (memo[id] = colors[(i++) % colors.length]);
+            }
+        })();
+        ```
+
+        The IIFE encapsulates the internals of how the resulting function works, preventing the `colors`, `memo`, and `i` names from polluting the global namespace.
+
+        But... after the anonymous function executes, don't `colors`, `memo`, and `i` go out of scope, get cleaned up from the stack and are not visible from inside the resulting function??
+
+        ---
+
+        # Closures
+
+        *No*!  JavaScript has a feature called "closures".
+
+        Functions can still reference the variables from their outer scopes whenever they execute, even though the outer functions have finished.  Here's another example from MDN:
+        ```javascript
+        function makeSizer(size) {
+            return function() {
+                document.body.style.fontSize = size + 'px';
+            };
+        }
+
+        document.getElementById('resize-text-12pt-button').onclick = makeSizer(12);
+        document.getElementById('resize-text-16pt-button').onclick = makeSizer(16);
+        document.getElementById('resize-text-20pt-button').onclick = makeSizer(20);
+        ```
+
+        `makeSizer` will execute a few times when the page loads to assign the `onclick` event handlers to each button.  When the buttons are clicked, the anonymous event handler returned by makeSizer will execute and still have access to the value of `size` specified when `makeSizer` ran earlier.
+
+        ---
+
+        # Unexpected Side Effects of Closures
+
+        Sometimes sharing a reference to an outer-scoped variable inside an event handler isn't so good. Check this out:
+
+        ```html
+        <button>Here's a button!</button>
+        <button>Here's another!</button>
+        <button>There's so many to choose from!</button>
+        <script>
+            var buttons = document.getElementsByTagName('button');
+            var i = 0;
+            Array.prototype.forEach.call(buttons, function(button) {
+                button.addEventListener('click', function() {
+                    alert('You clicked button number ' + ++i);
+                });
+            });
+        </script>
+        ```
+
+        Instead of saying "You clicked button number 1!" when you click the first button, "number 2" for the second and so on, this code will increase the number in the message by 1 with every click.  This is because `i` is "closed-over" in the event listener and the reference lives on while the handler is running.
+
+        ---
+
+        # Unexpected Side Effects of Closures
+
+        Let's fix that by using our friend `bind`:
+
+        ```html
+        <button>Here's a button!</button>
+        <button>Here's another!</button>
+        <button>There's so many to choose from!</button>
+        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+        <script>
+            var buttons = document.getElementsByTagName('button');
+            var i = 0;
+            Array.prototype.forEach.call(buttons, function(button) {
+                button.addEventListener(
+                    'click',
+                    alert.bind(this, "You clicked button number " + ++i)
+                );
+            });
+        </script>
+        ```
+
+        Now, the result from `bind` is added as the event listener.  Whatever value of `i` that `bind` is passed is what `alert` will get when it's called, no matter what value `i` might hold at the time.
+
+        ---
+
+        class: middle, center
+        # The Awful Parts
+
+        There are some really bad parts of JavaScript--learn to avoid them.
+
+        ---
+
+        # Global Variables
+
+        You should always use `var` to declare variables.  If you don't, like this:
+        ```javascript
+        myVar = 1234;
+        ```
+        they instead get declared as global variables stored on `window`.  This is probably not what you wanted and can cause problems with other modules, or even your own code later if you need to reuse the name.
+
+        ---
+
+        # Variable Hoisting
+
+        In almost all C-like languages, using curly braces makes a new scope.  You can do this in C#:
+
+        ```csharp
+        private void MyMethod(bool condition) {
+            if (condition) {
+                int x = 2;
+            } else {
+                int x = 3;
+            }
+            return doSomething(x);
+        }
+        ```
+
+        ---
+
+        # Variable Hoisting
+
+        However, that would be considered a duplicate declaration in JavaScript... beacuse only a function declaration can make a new scope.  Even though conditional blocks are statements, they don't make a new scope.
+        You can still make a new scope whenever you want with an IIFE, though:
+
+        ```javascript
+        function myMethod() {
+            if (condition) {
+                (function() {
+                    var x = 2;
+                    doSomething(x);
+                })();
+            } else {
+                (function() {
+                    var x = 3;
+                    doSomething(x);
+                })();
+            }
+        }
+        ```
+
+        ---
+
+        # Semicolon Insertion
+
+        If you don't end statements with semicolons, the interpreter will try to figure out where they should go.  This can cause problems when you are trying to write multi-line statements.  For example, this function will return without a value or throwing any errors because the interpreter thought you were finished after `return`:
+
+        ```javascript
+        function formatName(first, middle, last) {
+            return
+                last
+                + ', '
+                + first
+                + ' '
+                + middle
+                + '.';
+        }
+        ```
+
+
+    </textarea>
+    <script src="remark-latest.min.js">
+    </script>
+    <script>
+    var slideshow = remark.create();
+    </script>
+</body>
+</html>
