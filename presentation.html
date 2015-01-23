@@ -41,14 +41,11 @@
 
         # Data Types
 
-        There's really only four of them
         ####Boolean
         ####String
         ####Number
-        Holds integers, floats, or `Infinity`
-
         ####Object
-        Maps a set of strings to arbitrary values
+        Key-value store
 
         ```
         var xby2 = {
@@ -58,34 +55,41 @@
         };
         ```
 
+        ???
+
+        * Only four base types
+        * `Number` holds ints and floats
+        * Object is like a hash map
+
         ---
 
         # Data Types
 
-        You've got a few special types of objects
+        ## Specialized objects
 
         * Function
-          * Has behavior--called with parens, like in C or Java
           * Can be passed around like any other value
         * Array
-          * More of an ArrayList--dynamically sized
-          * Accessed with square brackets
+          * Dynamically sized
 
-        #### The Catch
-        Functions and arrays are still objects.  You can assign properties to them like any other object.
+        ???
+
+        * Still objects
+        * Can be assigned properties
 
         ---
 
         # Strings are weird
 
-        They aren't objects, so you can't give them properties.  You can try without an error, but it won't work:
+        Cannot assign properties
+
         ```
         > var s = "Hello, world";
         > s.prop = 1234;
         > s.prop;
         undefined
         ```
-        But--strings do have methods and can be indexed like arrays with `[]`
+        Strings have some methods
         ```
         > s.substring(7);
         "world"
@@ -94,11 +98,15 @@
         "H"
         ```
 
+        ???
+
+        * Neither objects primitives, but have some characteristics of both
+
         ---
 
-        # Very weird
+        # ...very weird
 
-        Although string instances aren't objects, string is much like a built-in class.  You can even extend it with more methods, like `reverse`:
+        Can extend prototype for new methods
 
         ```javascript
         String.prototype.reverse = function() {
@@ -114,54 +122,77 @@
         "fdsa"
         ```
 
+        ???
+
         Don't worry about what that `prototype` thing is for now.  We'll get to it :)
 
         ---
 
         # Arrays are less weird... but still
 
-        It's better to think of arrays as objects keyed by integers instead of strings, because they behave that way.  You can add values past the end of your array...
+        Arrays are sparse
+
         ```
         > var alphabet = ['a', 'b'];
         > alphabet.length;
         2
+
         > alphabet[3] = 'd';
         > alphabet;
         ["a", "b", undefined, "d"]
+
         > alphabet.length;
         4
         ```
-        ... and you can delete things in the middle...
+
         ```
         > delete alphabet[1];
         > alphabet;
         ["a", undefined, undefined, "d"]
+
         > alphabet.length;
         4
 
         ```
-        and all the while, the `length` property stays the same.  You can't always trust `length` to actually be the count of how many things are really defined in your array!
+
+        ???
+
+        * JS arrays are sparse
+        * More like objects keyed by ints
+        * Can't trust `length` to be the count of actual defined elements
 
         ---
 
-        # Not-Quite Data Types
+        # Values for Nothing
 
-        There are two distinct values in JavaScript that mean "nothing".
+        Two different values that mean "nothing"
 
         ### undefined
-        This is what you get when you try to use a variable that hasn't been declared yet, or access an object property that hasn't been assigned.
+        Value for undelcared or unassigned names
         ```
         > undeclaredName;
         undefined
+
+        > var undeclaredName;
+        > undeclaredName
+        undefined
+
         > var o = {};
         > o.property;
         undefined
         ```
-        You can see that JavaScript is permissive when it comes to undeclared stuff; it won't throw an error, just returns `undefined`.  Don't try to access a property of an object that doesn't exist, though, or you will get an error:
+
         ```
         > undeclaredName.property;
         Uncaught ReferenceError: undeclaredName is not defined
         ```
+
+        ???
+
+        * `undefined` doesn't really mean `undefined`
+        * even after defining, still contains undefined w/o assignment
+        * won't throw errors for nonexistent properties or vars, just returns undefined
+        * don't try to access property of undefined
 
         ---
 
@@ -169,21 +200,26 @@
 
         ### null
 
-        This is sort of like undefined, except you can use it to explicitly tell the difference between something that has been deliberately set to 'no value' and something that just hasn't been assigned at all.
+        Intentionally not set
 
         ### NaN
+        When number-returning functions go wrong
 
-        You won't see it too often, but some library functions that usually return numbers will return `NaN` in corner cases.
         ```
         > parseInt("");
         NaN
         ```
 
+        ???
+
+        * null is "this page intentionally left blank"
+        * NaN is pretty uncommon, but be aware of it
+
         ---
 
         # Truthy and Falsy
 
-        JavaScript will coerce any expression into either `true` or `false` whenever a boolean is expected, like in an `if` statement.  That makes our clunky C# code...
+        JavaScript will coerce any expression into either `true` or `false` whenever a boolean is expected, allowing for terser null checks. This C#:
 
         ```csharp
         private void ThingsMightBeNull(F arg) {
@@ -192,7 +228,7 @@
             }
         }
         ```
-        look a bit nicer in JavaScript:
+        looks like this in JS:
         ```javascript
         function thingsMightBeNull(arg) {
             if (arg.prop) {
@@ -200,12 +236,16 @@
             }
         }
         ```
+        Checking for array contents
+        ```javascript
+        if (myArray.length) doSomethingWith(myArray);
+        ```
 
         ---
 
         # ... but be careful
 
-        Some things you might expect to be falsy actually turn out to be truthy.  In fact, these are the *only* falsy values:
+        The only falsy values:
         * `false`
         * `0`
         * `""` (empty string)
@@ -213,7 +253,7 @@
         * `undefined`
         * `NaN`
 
-        So that means that some things you might expect to be falsy are actually truthy:
+        Surprisingly truthy:
         ```
         > Boolean([]) // empty array
         true
@@ -222,15 +262,23 @@
         true
         ```
 
+        ???
+
+        * Some values you might expect to be "false" will be "true"
+        * Be careful when checking for the existence of a number--zero is falsy
+
         ---
 
-        # Operators
-
-        JS operators are mostly like the ones from C or Java, with a few important quirks
+        # Operators with Equals Sign
 
         * `=` (Assignment)
         * `==` (Equality, type-coercing)
         * `===` (Equality, strict)
+
+        ???
+
+        * `==` coerces type with unpredictable results
+        * `===` only returns true if both are same type
 
         ---
 
@@ -240,7 +288,11 @@
         ---
 
         # Logical OR
-        The `||` operator is short-circuit logical OR like in most languages, but because of JavaScript's liberal interpretation of "truthy" and "falsy", also gives JS programmers a fantastically expressive and unmatched way to set default values.  Consider the following:
+
+        Short-circuit OR like in other langs
+
+        Use to set defaults as well
+
         ```javascript
         function greet(location, name) {
             console.log('Welcome to '
@@ -276,9 +328,9 @@
 
         ---
 
-        ## Objects aren't weird, they're special!
+        ## JavaScript objects are flexible
 
-        Since functions and arrays are also objects, they can be used in interesting ways that you wouldn't think of in other languages.  Let's teach an array to sum itself:
+        Let's teach an array to sum itself:
 
         ```javascript
         var a = [1,2,3];
@@ -290,7 +342,7 @@
             return sum;
         };
         ```
-        Then, you can do this at a console:
+
         ```
         > a[0];
         1
@@ -302,9 +354,14 @@
         12
         ```
 
+        ???
+
+        * JS arrays and funcs are objects
+        * They are capable of more than arrays/funcs in other languages
+
         ---
 
-        You can assign arbitrary properties to functions as well... even other functions...
+        Functions can have methods too
 
         ```javascript
         function f() {
@@ -312,7 +369,7 @@
         }
         f.g = function() { console.log('Things are getting weird'); }
         ```
-        Now try calling `f`:
+        `f` calls `g`.
         ```
         > f();
         Things are getting weird
@@ -321,8 +378,6 @@
         ---
 
         # Something Useful
-
-        Let's use some objects to keep track of how well written our projects are...
 
         ```javascript
         var genii = {
@@ -354,6 +409,11 @@
         CPDM has one bug per 199999999.8 lines of code.
         ```
 
+        ???
+
+        * Both objects have the same keys
+        * Ratio method is exactly the same between both
+
         ---
 
         class: center, middle
@@ -363,7 +423,9 @@
 
         # Classes
 
-        There is no class keyword (coming soon in ES6).  Instead, you just write a constructor.  You can attach methods by assigning functions during the constructor.
+        * There is no class keyword
+        * Just write a constructor
+        * Methods are just function-valued properties
 
         ```javascript
         function Project(name, bugs, linesOfCode) {
@@ -378,7 +440,7 @@
 
         ```
 
-        Then use the `new` keyword to instantiate your class:
+        Use the `new` keyword to instantiate:
 
         ```
         > var abc = new Project('ABC Warehouse', 50, 30000);
@@ -386,11 +448,17 @@
         ABC Warehouse has one bug per 600 lines of code.
         ```
 
+        ???
+
+        * Class keyword coming in ES6
+
         ---
 
         ### Be Careful...
 
-        Don't forget to use `new` when calling your constructors, or Bad Things will happen:
+        Always use `new` with constructors
+
+        Here's a mistake:
 
         ```
         > var healthcare = Project('Healthcare.gov', 100000, 100000);
@@ -402,40 +470,42 @@
         > window.bugs
         100000
         ```
+
+        ???
+
         That's weird... Let's talk about `this` to explain what happened
 
         ---
 
         class: center, middle
         # `this`
-        A reserved name always bound to the "current object"
 
-        What that is... depends on how the function is called
+        ???
+
+        * A reserved name always bound to the "current object"
+        * What that is... depends on how the function is called
 
         ---
 
         # How's `this` Bound?
         ### Simple function call
-        By default, `this` refers to the global object (`window` in a browser)
+        Bound to global object
         ```javascript
         > function f() { return this; };
         > f() === window;
         true
         ```
-        Try simply calling a function from another function body... still the global object
-        ```javascript
-        > function g() { return this === window; }
-        > function f() { return g(); }
-        > f();
-        true
-        ```
+
+        ???
+
+        * Global object is `window` in browser
 
         ---
 
         # How's `this` Bound?
         ### Function called as an object method
 
-        If a function belongs to an object, `this` is set to the object it belongs to.  That's how our sum method from before worked; `this` was set to the array itself.
+        Bound to object it belongs to
         ```javascript
         var a = [1,2,3];
         a.sum = function() {
@@ -445,7 +515,7 @@
         };
         console.log(a.sum()); // prints 6
         ```
-        This code would do the same thing:
+        Same result:
         ```javascript
         var a = [1,2,3];
         function sum(anArray) {
@@ -455,6 +525,10 @@
         }
         console.log(sum(anArray)); // prints 6
         ```
+
+        ???
+        * This is how sum method from before worked; `this` was set to the array itself.
+
 
         ---
 
@@ -468,9 +542,7 @@
         ---
 
         # How's `this` Bound?
-        ### Our Big Whoopsie Revisited; A Pop Quiz
-
-        Now that we understand what `this` is bound to in different circumstances, can you explain the two mysteries from before?
+        ### Our Big Mistake Revisited
 
         ```
         > var healthcare = Project('Healthcare.gov', 100000, 100000);
@@ -483,15 +555,24 @@
         * Why is `healthcare` undefined?
         * Why did 100000 get assigned to `window.bugs`?
 
+        ???
+
+        * Because the constructor was called like a normal function and...
+          * it doesn't have a return statement
+          * its 'this' got set to the global object
+
         ---
 
         # How's `this` Bound?
-        ### `call` and `apply` methods
+        ### Function `call` and `apply` methods
 
-        It's also possible to manually control what `this` is bound to when you like, with these two methods of Function.  `call` and `apply` allow you to call a function with a specific object in mind for `this`:
+        Specify what `this` is bound to for a function call
         ```javascript
         function add(c, d) {
-            return this.a + this.b + c + d;
+            return   this.a
+                   + this.b
+                   + c
+                   + d;
         }
         var o = {a: 1, b:3};
         ```
@@ -499,7 +580,7 @@
         > add.call(o, 5, 7) // 1 + 3 + 5 + 7...
         16
         ```
-        `apply` is the same, except it takes the arguments to the actual function as an array instead of varargs:
+        `apply` is the same, but takes array for arguments
         ```
         > add.apply(o, [5,7])
         16
@@ -508,7 +589,9 @@
         ---
         # How's `this` Bound?
         ### ...when would you ever use that?
-        One fun use of `call` is for class inheritance!  You can call another constructor from within a sublcass constructor and pass your own `this` in order to have the superclass constructor initialize your object first:
+        * Use `call` for class inheritance
+        * Call another ctor from within a subclass ctor, passing `this`
+
         ```javascript
         function Superclass(n) {
             this.single = n;
@@ -527,12 +610,15 @@
         4
         ```
 
+        ???
+        * Superclass ctor gets subclass ctor's new object for its `this`
+
         ---
 
         # How's `this` Bound?
         ### The `bind` method
 
-        `bind` creates a totally new function from an existing one, except with `this` and the arguments permanently set to whatever you want.
+        Creates a new function from an existing one with `this` and arguments specified
 
         ```javascript
         function f(addend1, addend2) {
@@ -588,7 +674,6 @@
 
         class: center, middle
         # The Wicked Sick Parts
-        JavaScript is my favorite language.  It lets you do awesome things that are hard or impossible in other common languages.
 
         ---
 
@@ -596,7 +681,9 @@
 
         ## What?
 
-        At the surface, FP is writing code *imperatively* instead of *declaratively*.  SQL is an imperative language we're all familiar with--you tell SQL Server *what* you want instead of *how* to get it.
+        * Writing code *imperatively* instead of *declaratively*
+        * Tell computer *what* you want instead of *how* to get it
+        * SQL is imperative
 
         ---
 
@@ -608,7 +695,7 @@
         order by p.date desc
         ```
 
-        If you expressed that imperatively, you might get this:
+        Expressed imperatively:
 
         ```javascript
         var results = [];
@@ -627,7 +714,7 @@
         }
         sort(results);
         ```
-        Truly dreadful to read and write, and prone to bugs.
+        Yuck
 
         ---
 
@@ -639,7 +726,8 @@
         order by p.date desc
         ```
 
-        And here's how you can express that imperatively in a functional programming style with JavaScript:
+        Expressed imperatively in native JS
+
         ```javascript
         var results = posts
             .filter(function(p) {
@@ -655,15 +743,19 @@
                 };
             })
             .sort(function(a,b) { return b.date - a.date; });
-
         ```
+
+        ???
+
+        Enabled by functions as values; can pass them easily to other functions and declare them inline
 
         ---
 
-        # Bonus Points
-        Functional programming with `map`, `filter` and friends isn't just great to rewrite your nested loops like SQL.
+        # Functional Programming
 
-        You can also pass built-in functions to these methods to greatly simplify your code.  Consider this bit to grab numbers from HTML form inputs and get the sum.  (It uses a little help from a popular JavaScript library, Underscore.js)
+        Pass built-in functions to FP methods to simplify your code.
+
+        This sums numbers from all HTML form inputs and get the sum.
 
         ```javascript
         var inputs = $('input[type=text]');
@@ -674,16 +766,24 @@
             .value()
         ```
 
-        By passing the built-in function `parseInt` to `map`, we convert the array of strings into an array of ints.
+        ???
+
+        * (Using Underscore.js and jQuery)
+        * By passing the built-in function `parseInt` to `map`, we convert the array of strings into an array of ints.
 
 
         ---
 
-        # IIFEs
+        # IIFE
 
-        IIFE means Immediately Invoked Function Expression.  Since a function declaration can be a normal expression in JavaScript that returns a value, you can invoke it right away by putting parens at the end.  Here's an IIFE I once used in GENII to assign a color to a given id from a cyclical palette such that, once assigned, an ID would always return the same color:
+        ####Immediately Invoked Function Expression
+        * Remember, functions are values
+        * Can invoke right away instead of storing in variable
+
 
         ```javascript
+        // Assign a color to a given id from a cyclical palette such that, once assigned,
+        // an ID would always return the same color
         var getColor = (function() {
             var colors = ['#fefefe', '#0fabcc', '#aaabba', '0123abc', '#0123ff'];
             var memo = {};
@@ -695,19 +795,20 @@
         })();
         ```
 
-        The IIFE encapsulates the internals of how the resulting function works, preventing the `colors`, `memo`, and `i` names from polluting the global namespace.
+        But why don't `colors`, `memo`, and `i` go away after the anonymous function is done?
 
-        But... after the anonymous function executes, don't `colors`, `memo`, and `i` go out of scope, get cleaned up from the stack and are not visible from inside the resulting function??
+        ???
+
+        * Provides encapsulation
 
         ---
 
         # Closures
 
-        *No*!  JavaScript has a feature called "closures".
+        * Functions retain references the variables in the scope where they were defined
 
-        Functions can still reference the variables from their outer scopes whenever they execute, even though the outer functions have finished.  Here's another example from MDN:
         ```javascript
-        function makeSizer(size) {
+        function makeFontResizer(size) {
             return function() {
                 document.body.style.fontSize = size + 'px';
             };
@@ -718,18 +819,21 @@
         document.getElementById('resize-text-20pt-button').onclick = makeSizer(20);
         ```
 
-        `makeSizer` will execute a few times when the page loads to assign the `onclick` event handlers to each button.  When the buttons are clicked, the anonymous event handler returned by makeSizer will execute and still have access to the value of `size` specified when `makeSizer` ran earlier.
+        ???
+
+        * `makeSizer` executes three times on page load
+        * Even though `makeSizer` is done, handler keeps reference to argument
 
         ---
 
         # Unexpected Side Effects of Closures
 
-        Sometimes sharing a reference to an outer-scoped variable inside an event handler isn't so good. Check this out:
+        References can persist for longer than you think
 
         ```html
-        <button>Here's a button!</button>
-        <button>Here's another!</button>
-        <button>There's so many to choose from!</button>
+        <button>Button 1</button>
+        <button>Button 2</button>
+        <button>Button 3</button>
         <script>
             var buttons = document.getElementsByTagName('button');
             var i = 0;
@@ -741,13 +845,15 @@
         </script>
         ```
 
-        Instead of saying "You clicked button number 1!" when you click the first button, "number 2" for the second and so on, this code will increase the number in the message by 1 with every click.  This is because `i` is "closed-over" in the event listener and the reference lives on while the handler is running.
+        Expected: Click on a button, get popup with its number
+
+        Actual: Each click of any button increments the number in the message by 1
 
         ---
 
         # Unexpected Side Effects of Closures
 
-        Let's fix that by using our friend `bind`:
+        Fix it with `bind`
 
         ```html
         <button>Here's a button!</button>
@@ -766,30 +872,36 @@
         </script>
         ```
 
-        Now, the result from `bind` is added as the event listener.  Whatever value of `i` that `bind` is passed is what `alert` will get when it's called, no matter what value `i` might hold at the time.
+        ???
+
+        * Whatever value of `i` that `bind` got is what passed is what `alert` gets
+        * Only `alert` runs for the handler, which is native code
+          * wasn't defined in a same or inner scope as `i`, so no ref to it
 
         ---
 
         class: middle, center
         # The Awful Parts
 
-        There are some really bad parts of JavaScript--learn to avoid them.
-
         ---
 
         # Global Variables
 
-        You should always use `var` to declare variables.  If you don't, like this:
+        Not using 'var' makes a global variable
         ```javascript
         myVar = 1234;
         ```
-        they instead get declared as global variables stored on `window`.  This is probably not what you wanted and can cause problems with other modules, or even your own code later if you need to reuse the name.
+
+        ???
+
+        * Pollute global scope
+        * Interfere with other modules or other pieces of your own code
 
         ---
 
         # Variable Hoisting
 
-        In almost all C-like languages, using curly braces makes a new scope.  You can do this in C#:
+        In most languages, using curly braces makes a new scope.  You can do this in C#:
 
         ```csharp
         private void MyMethod(bool condition) {
@@ -798,7 +910,6 @@
             } else {
                 int x = 3;
             }
-            return doSomething(x);
         }
         ```
 
@@ -806,20 +917,19 @@
 
         # Variable Hoisting
 
-        However, that would be considered a duplicate declaration in JavaScript... beacuse only a function declaration can make a new scope.  Even though conditional blocks are statements, they don't make a new scope.
-        You can still make a new scope whenever you want with an IIFE, though:
+        * In JS, only a function declaration makes a new scope
+        * Can still use IIFE for that
+        * Ugly and awkward
 
         ```javascript
         function myMethod() {
             if (condition) {
                 (function() {
                     var x = 2;
-                    doSomething(x);
                 })();
             } else {
                 (function() {
                     var x = 3;
-                    doSomething(x);
                 })();
             }
         }
@@ -829,7 +939,8 @@
 
         # Semicolon Insertion
 
-        If you don't end statements with semicolons, the interpreter will try to figure out where they should go.  This can cause problems when you are trying to write multi-line statements.  For example, this function will return without a value or throwing any errors because the interpreter thought you were finished after `return`:
+        * Semicolons technically required
+        * Interpreter will guess if they're missing
 
         ```javascript
         function formatName(first, middle, last) {
@@ -843,6 +954,15 @@
         }
         ```
 
+        ```
+        > formatName('Zaphod', 'M', 'Beeblebrox');
+        undefined
+        ```
+
+        ---
+
+        class: center, middle
+        # Questions?
 
     </textarea>
     <script src="remark-latest.min.js">
