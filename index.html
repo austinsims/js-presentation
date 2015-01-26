@@ -637,44 +637,6 @@
 
         ---
 
-        Here's a practical example of `bind` in GENII:
-
-        ```javascript
-        // These calls to sendGetRequest are needed by both branches below
-        var sendHomeGetRequest = sendGetRequest.bind(this,
-            window.FrameManager['MainSection'](tab.id).window, 'StartCustomerProfileGroup',
-            'MainSection', 'MainSection', undefined, undefined, true );
-        var sendAccelPostingGetRequest = sendGetRequest.bind(this,
-            window.FrameManager['MainSection'](tab.id).window, 'CloseCusHomeAndGoToCUPosting',
-            'MainSection', 'MainSection', undefined, undefined, true);
-
-        // This branch is executed if any legacy screen is in the customer's tab
-        if (tab.displayLegacy) {
-            // This will activate a GENII process and not return a value, so don't try
-            // to assign it to anything.
-            sendHomeGetRequest();
-
-            // Specifying no controller location will cause this to navigate to
-            // home--which is what we need
-            tab.url = config.legacyUrlRoot;
-            var navSubscription = observable(tab, 'mainFrameLoading').subscribe(function() {
-                var controllerLocation = sendAccelPostingGetRequest();
-                tab.url = config.legacyUrlRoot + controllerLocation;
-            });
-        }
-
-        // This branch is executed if GENII Customer Home is in the customer's tab
-        // In this case, FMS home is in the background, navigation is not necessary
-        else {
-            // This will return a controller location we need to append to the legacy
-            // URL root and manually direct the iFrame to the result
-            var controllerLocation = sendAccelPostingGetRequest();
-            tab.url = config.legacyUrlRoot + controllerLocation;
-        }
-        ```
-
-        ---
-
         class: center, middle
         # The Wicked Sick Parts
 
